@@ -1,6 +1,5 @@
 import axios from 'axios';
-import usersReducer from '../reducers/usersReducer';
-import { FETCH_BY_USER, LOADING_PUBS, PUBS_ERROR } from '../types/pubsTypes';
+import { UPDATE_PUB, LOADING_PUBS, PUBS_ERROR } from '../types/pubsTypes';
 import * as usersTypes from '../types/usersTypes';
 
 const { FETCH_USERS: FETCH_ALL_USERS } = usersTypes;
@@ -14,10 +13,19 @@ export const fetchByUser = (key) => async (dispatch, getState) => {
   })
   try {
     const { data } = await axios.get(`https://jsonplaceholder.typicode.com/posts?userId=${user_id}`)
+    const new_pubs = data.map((pub) => ({
+      ...pub,
+      comments: [],
+      open: false
+    }));
     const updatedPubs = [
       ...pubs,
-      data
+      new_pubs
     ];
+    dispatch({
+      type: UPDATE_PUB,
+      payload: updatedPubs
+    })
     const pubs_key = updatedPubs.length - 1;
     const updatedUsers = [...users];
     updatedUsers[key] = {
@@ -28,10 +36,6 @@ export const fetchByUser = (key) => async (dispatch, getState) => {
       type: FETCH_ALL_USERS,
       payload: updatedUsers
     })
-    dispatch({
-      type: FETCH_BY_USER,
-      payload: updatedPubs
-    })
   } catch (err) {
     console.log('Error: '+err.message);
     dispatch({
@@ -39,4 +43,26 @@ export const fetchByUser = (key) => async (dispatch, getState) => {
       payload: err.message
     })
   }
+}
+
+export const openClose = (pubs_key,comments_key) => async (dispatch, getState) => {
+  const { pubs } = getState().pubsReducer;
+  const selected = pubs[pubs_key][comments_key];
+
+  const updatedPub = {
+    ...selected,
+    open: !selected.open
+  };
+
+  const updatedPubs = [...pubs];
+  updatedPubs[pubs_key] = [
+    ...pubs[pubs_key]
+  ];
+
+  updatedPubs[pubs_key][comments_key] = updatedPub;
+
+  dispatch({
+    type: UPDATE_PUB,
+    payload: updatedPubs
+  })
 }
