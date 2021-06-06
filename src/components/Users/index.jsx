@@ -1,18 +1,21 @@
-import { useEffect, useState } from 'react';
+import React, { Component } from 'react';
 import './style.css';
-import axios from 'axios';
+import { connect } from 'react-redux';
+import * as usersActions from '../../actions/usersActions'
+import Loader from '../Loader';
+import FatalError from '../FatalError';
+import Table from './Table';
 
-function Users() {
-  const [users, setUsers] = useState([]);
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const { data } = await axios.get("https://jsonplaceholder.typicode.com/users");
-      setUsers(data);
+class Users extends Component {
+
+  componentDidMount() {
+    if (!this.props.users.length) {
+      this.props.fetchAll();
     }
-    fetchUsers();
-  }, []);
-  const setRows = () => (
-    users.map((user) => (
+  }
+
+  setRows = () => (
+    this.props.users.map((user) => (
       <tr key={user.id}>
         <td>{user.name}</td>
         <td>{user.email}</td>
@@ -20,22 +23,29 @@ function Users() {
       </tr>
     ))
   );
-  return (
-    <div className="container">
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Correo</th>
-            <th>Enlace</th>
-          </tr>
-        </thead>
-        <tbody>
-          {setRows()}
-        </tbody>
-      </table>
-    </div>
-  );
+
+  setContent = () => {
+    if (this.props.loadingUsers) {
+      return <Loader />;
+    } else if (this.props.usersError) {
+      return <FatalError message={this.props.usersError} />;
+    } else {
+      return (
+        <>
+          <h1>Users</h1>
+          <Table />
+        </>
+      )
+    }
+  }
+
+  render() {
+    return this.setContent();
+  }
 }
 
-export default Users;
+const mapStateToProps = (reducers) => {
+  return reducers.usersReducer;
+}
+
+export default connect(mapStateToProps, usersActions)(Users);
