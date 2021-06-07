@@ -4,10 +4,11 @@ import * as usersActions from '../../actions/usersActions';
 import * as pubsActions from '../../actions/pubsActions';
 import Loader from '../Loader';
 import FatalError from '../FatalError';
+import Comments from './Comments';
 import './style.css';
 
 const { fetchAll: fetchAllUsers } = usersActions;
-const { fetchByUser: fetchByUser, openClose } = pubsActions;
+const { fetchByUser: fetchByUser, openClose, fetchComments } = pubsActions;
 
 class Pubs extends Component {
   async componentDidMount() {
@@ -85,7 +86,7 @@ class Pubs extends Component {
       <div
         key={pub.id}
         className="pub_title"
-        onClick={() => this.props.openClose(pubs_key, comments_key)}
+        onClick={() => this.showComments(pubs_key, comments_key, pub.comments)}
       >
         <h2>
           {pub.title}
@@ -94,11 +95,18 @@ class Pubs extends Component {
           {pub.body}
         </p>
         {
-          (pub.open) ? 'Open' : 'Closed'
+          (pub.open) ? <Comments comments={pub.comments} /> : ''
         }
       </div>
     ))
   )
+
+  showComments = (pub_key, com_key, comments) => {
+    this.props.openClose(pub_key, com_key);
+    if (!comments.length) {
+      this.props.fetchComments(pub_key, com_key);
+    }
+  }
 
   render() {
     console.log(this.props);
@@ -118,7 +126,8 @@ const mapStateToProps = ({ usersReducer, pubsReducer }) => (
 const mapDispatchToProps = {
   fetchAllUsers,
   fetchByUser,
-  openClose
+  openClose,
+  fetchComments
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Pubs);

@@ -1,5 +1,12 @@
 import axios from 'axios';
-import { UPDATE_PUB, LOADING_PUBS, PUBS_ERROR } from '../types/pubsTypes';
+import { 
+  UPDATE_PUB, 
+  LOADING_PUBS, 
+  PUBS_ERROR, 
+  LOADING_COMMENTS, 
+  COMMENTS_ERROR, 
+  UPDATE_COMMENTS 
+} from '../types/pubsTypes';
 import * as usersTypes from '../types/usersTypes';
 
 const { FETCH_USERS: FETCH_ALL_USERS } = usersTypes;
@@ -65,4 +72,33 @@ export const openClose = (pubs_key,comments_key) => async (dispatch, getState) =
     type: UPDATE_PUB,
     payload: updatedPubs
   })
+}
+
+export const fetchComments = (pub_key, com_key) => async (dispatch, getState) => {
+  dispatch({
+    type: LOADING_COMMENTS
+  });
+  const { pubs } = getState().pubsReducer;
+  const selected = pubs[pub_key][com_key];
+  try {
+    const { data } = await axios.get(`https://jsonplaceholder.typicode.com/comments?postId=${selected.id}`);
+    const updatedPub = {
+      ...selected,
+      comments: data
+    }
+    const updatedPubs = [...pubs];
+    updatedPubs[pub_key] = [
+      ...pubs[pub_key]
+    ];
+    updatedPubs[pub_key][com_key] = updatedPub;
+    dispatch({
+      type: UPDATE_COMMENTS,
+      payload: updatedPubs
+    })
+  } catch (err) {
+    dispatch({
+      type: COMMENTS_ERROR,
+      payload: err.message
+    })
+  }
 }

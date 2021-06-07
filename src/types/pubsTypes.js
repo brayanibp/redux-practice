@@ -1,3 +1,6 @@
-export const UPDATE_PUB = "fetchPubsByUser"
+export const UPDATE_PUB = "updatePub"
 export const LOADING_PUBS = "loadingPubs"
 export const PUBS_ERROR = "pubsError"
+export const UPDATE_COMMENTS = "updateComments"
+export const LOADING_COMMENTS = "loadingComments"
+export const COMMENTS_ERROR = "commentsError"

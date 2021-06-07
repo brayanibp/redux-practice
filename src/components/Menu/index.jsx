@@ -5,7 +5,7 @@ import './style.css';
 const Menu = () => (
   <nav id="menu">
     <Link to="/">Usuarios</Link>
-    <Link to="tasks">Tareas</Link>
+    <Link to="/tasks">Tareas</Link>
   </nav>
 )
 

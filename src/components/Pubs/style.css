@@ -1,0 +1,8 @@
+.pub_title {
+  border-top: 1px solid #000000;
+  cursor: pointer;
+}
+
+.pub_title li {
+  margin: 15px 0 15px 0;
+}
